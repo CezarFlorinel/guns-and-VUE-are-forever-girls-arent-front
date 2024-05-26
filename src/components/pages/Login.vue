@@ -8,7 +8,7 @@
           <input
             class="form-control"
             id="inputUsername"
-            name="username"
+            v-model="username"
             type="text"
           />
         </div>
@@ -17,7 +17,7 @@
           <input
             class="form-control"
             id="inputPassword"
-            name="password"
+            v-model="password"
             type="password"
           />
         </div>
@@ -51,7 +51,7 @@ export default {
         await store.login(username.value, password.value);
         if (store.isLoggedIn) {
           console.log("Login Success");
-          router.replace("/products");
+          router.replace("/");
         } else {
           console.log("Login Failed");
         }
