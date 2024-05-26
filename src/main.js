@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 
 import BootstrapVueNext from 'bootstrap-vue-next'
+import Swal from 'sweetalert2';
 
 import './assets/main.css'
 
@@ -15,6 +16,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router)
 app.use(BootstrapVueNext)
+app.config.globalProperties.$swal = Swal;
 
 app.mount('#app')
 
