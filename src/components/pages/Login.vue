@@ -1,29 +1,42 @@
 <template>
   <section>
-    <div class="container">
-      <div class="row">
-        <div class="col-md-6">
-          <form>
-            <div class="mb-3">
-              <label for="inputUsername" class="form-label">Username</label>
-              <input v-model="username" id="inputUsername" type="text" class="form-control" />
-            </div>
-            <div class="mb-3">
-              <label for="inputPassword" class="form-label">Password</label>
-              <input v-model="password" type="password" class="form-control" id="inputPassword" />
-            </div>
-            <button @click="login" type="button" class="btn btn-primary">Submit</button>
-          </form>
+    <div class="logInBody">
+      <h1 class="logInHeader text-center">Log In</h1>
+      <form class="logInForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            class="form-control"
+            id="inputUsername"
+            v-model="username"
+            type="text"
+          />
         </div>
-      </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            class="form-control"
+            id="inputPassword"
+            v-model="password"
+            type="password"
+          />
+        </div>
+        <button @click="login" type="button" class="btn btn-primary">
+          Log In
+        </button>
+        <p class="account-creation-p">
+          Don't have an account? <a href="/createAccount">Sign Up</a>
+        </p>
+      </form>
     </div>
   </section>
 </template>
 
 <script>
-import { useLoggedInStore } from '@/stores/logged_in';
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import "@/assets/CSS/logIn.css";
+import { useLoggedInStore } from "@/stores/logged_in";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Login",
@@ -38,7 +51,7 @@ export default {
         await store.login(username.value, password.value);
         if (store.isLoggedIn) {
           console.log("Login Success");
-          router.replace("/products");
+          router.replace("/");
         } else {
           console.log("Login Failed");
         }
@@ -51,12 +64,18 @@ export default {
     return {
       username,
       password,
-      login
+      login,
     };
-  }
+  },
 };
 </script>
 
-<style>
-/* Style as needed */
+<style scoped>
+.btn-primary {
+  font-size: 1.2rem;
+  padding: 10px 24px;
+  width: 100%;
+  font-family: "Keania One", sans-serif;
+  background-color: black;
+}
 </style>
