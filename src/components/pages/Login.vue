@@ -25,7 +25,8 @@
           Log In
         </button>
         <p class="account-creation-p">
-          Don't have an account? <a href="/createAccount">Sign Up</a>
+          Don't have an account?
+          <router-link to="/makeaccount">Sign Up</router-link>
         </p>
       </form>
     </div>
