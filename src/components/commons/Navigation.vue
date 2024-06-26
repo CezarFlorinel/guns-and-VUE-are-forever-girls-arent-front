@@ -14,7 +14,9 @@
     <nav class="navigation">
       <router-link to="/" class="nav-link">Home</router-link>
       <router-link to="/" class="nav-link">Guns</router-link>
-      <router-link to="/" class="nav-link">Modifications</router-link>
+      <router-link to="/modifications" class="nav-link"
+        >Modifications</router-link
+      >
 
       <router-link to="/" v-if="userRole && isLoggedIn" class="nav-link"
         >Admin</router-link

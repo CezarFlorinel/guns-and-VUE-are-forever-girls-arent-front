@@ -19,10 +19,11 @@ export const useUserStore = defineStore('user', {
             }
         },
         returnUserProfilePicture(id) {
-            let pathToPicture = "../../src/assets/images/account avatars/2.webp";
+            let pathToPicture = "../../src/assets/images/account avatars/1.webp";
+            let idParsed = parseInt(id);
 
-            if (id) {
-                switch (id) {
+            if (idParsed) {
+                switch (idParsed) {
                     case 1:
                         pathToPicture = "../../src/assets/images/account avatars/1.webp";
                         break;
@@ -47,14 +48,23 @@ export const useUserStore = defineStore('user', {
         async updateUser(username, data) {
             try {
                 const response = await axios.put(`/user/username/${username}`, data);
-                this.userData = response.data;  // Assuming the API returns the updated user data.
-                console.log('User updated:', this.userData);
+                this.userData = response.data;
                 return response.data;
 
             } catch (error) {
                 throw new Error(error.response?.data?.errorMessage || 'Failed to update user');
             }
+        },
+        async updatePassword(data) {
+            try {
+                const response = await axios.put(`/user/update-password`, data);
+                return response.data;
+
+            } catch (error) {
+                throw new Error(error.response?.data?.errorMessage || 'Failed to update user password');
+            }
         }
+
     },
 
 });

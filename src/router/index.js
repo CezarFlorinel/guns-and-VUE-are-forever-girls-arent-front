@@ -7,6 +7,7 @@ import EditProduct from '../components/products/EditProduct.vue';
 import Login from '../components/pages/Login.vue';
 import MakeAccount from '../components/pages/MakeAccount.vue';
 import UserProfile from '../components/pages/UserProfile.vue';
+import Modifications from '../components/pages/Modifications.vue';
 
 
 const router = createRouter({
@@ -17,6 +18,7 @@ const router = createRouter({
     { path: '/login', component: Login },
     { path: '/makeaccount', component: MakeAccount },
     { path: '/userprofile', component: UserProfile },
+    { path: '/modifications', component: Modifications },
 
 
     { path: '/createproduct', component: CreateProduct },

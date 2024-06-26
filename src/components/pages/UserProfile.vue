@@ -203,8 +203,27 @@ export default {
           avatarId: avatarId.value,
           password: password.value,
         };
+
         await userStore.updateUser(loggedInStore.getUsername, updatedData);
         loggedInStore.updateProfile(updatedData);
+
+        if (passworNewPassword.value !== "") {
+          if (passworNewPassword.value !== passworNewPasswordEnterAgain.value) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "New passwords do not match!",
+            });
+            return;
+          } else {
+            const updatedPasswordData = {
+              password: password.value,
+              username: username.value,
+              newPassword: passworNewPassword.value,
+            };
+            await userStore.updatePassword(updatedPasswordData);
+          }
+        }
         Swal.fire({
           icon: "success",
           title: "Profile Updated",
