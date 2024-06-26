@@ -8,7 +8,6 @@
       />
     </div>
 
-    <!-- Modifications Grid -->
     <div class="container mt-5">
       <h1 class="header-image">Modifications</h1>
 
@@ -34,13 +33,46 @@
           </div>
         </div>
       </div>
+
+      <nav aria-label="page navigation">
+        <ul class="pagination">
+          <li class="page-item" :class="{ disabled: currentPage === 1 }">
+            <a
+              class="page-link"
+              @click.prevent="fetchModifications(currentPage - 1)"
+              >Previous</a
+            >
+          </li>
+          <li
+            class="page-item"
+            v-for="page in totalPages"
+            :key="page"
+            :class="{ active: currentPage === page }"
+          >
+            <a class="page-link" @click.prevent="fetchModifications(page)">{{
+              page
+            }}</a>
+          </li>
+          <li
+            class="page-item"
+            :class="{ disabled: currentPage === totalPages }"
+          >
+            <a
+              class="page-link"
+              @click.prevent="fetchModifications(currentPage + 1)"
+              >Next</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <br />
     </div>
   </div>
 </template>
 
 <script>
 import "@/assets/CSS/modifications.css";
-import { ref, onMounted } from "vue";
+import { onMounted, toRefs } from "vue";
 import { modificationsStore } from "@/stores/modifications";
 import Swal from "sweetalert2";
 
@@ -48,21 +80,39 @@ export default {
   name: "Modifications",
   setup() {
     const store = modificationsStore();
-    try {
-      store.fetchModifications();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Something went wrong!",
-      });
-    }
+
+    onMounted(async () => {
+      try {
+        await store.fetchModifications();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong!",
+        });
+      }
+    });
+
+    const {
+      modifications,
+      loading,
+      error,
+      currentPage,
+      totalPages,
+      fetchModifications,
+    } = toRefs(store);
 
     console.log(store.modifications);
+    console.log(store.totalPages);
+    console.log(store.currentPage);
+
     return {
-      modifications: store.modifications,
-      loading: store.loading,
-      error: store.error,
+      modifications,
+      loading,
+      error,
+      currentPage,
+      totalPages,
+      fetchModifications,
     };
   },
 };
