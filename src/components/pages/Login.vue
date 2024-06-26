@@ -25,7 +25,8 @@
           Log In
         </button>
         <p class="account-creation-p">
-          Don't have an account? <a href="/createAccount">Sign Up</a>
+          Don't have an account?
+          <router-link to="/makeaccount">Sign Up</router-link>
         </p>
       </form>
     </div>
@@ -37,10 +38,12 @@ import "@/assets/CSS/logIn.css";
 import { useLoggedInStore } from "@/stores/logged_in";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { getCurrentInstance } from "vue";
 
 export default {
   name: "Login",
   setup() {
+    const { proxy } = getCurrentInstance();
     const username = ref("");
     const password = ref("");
     const store = useLoggedInStore();
@@ -50,13 +53,28 @@ export default {
       try {
         await store.login(username.value, password.value);
         if (store.isLoggedIn) {
-          console.log("Login Success");
+          proxy.$swal.fire({
+            title: "Success",
+            text: "Login Successful",
+            icon: "success",
+            confirmButtonText: "OK",
+          });
           router.replace("/");
         } else {
-          console.log("Login Failed");
+          proxy.$swal.fire({
+            title: "Error",
+            text: "Login Failed",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
         }
       } catch (error) {
-        alert("Login Failed");
+        proxy.$swal.fire({
+          title: "Error",
+          text: "Login Failed",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
         console.error(error);
       }
     };

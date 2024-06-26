@@ -1,6 +1,7 @@
-.homeBody {
+.home-body {
     background-color: black;
     color: white;
+    padding-bottom: 20px;
 }
 
 .homeImage {
@@ -26,14 +27,14 @@
     border: 5px solid white;
 }
 
-.homeBody h1 {
+.home-body h1 {
     font-family: 'Keania One', sans-serif;
     font-size: 50px;
     margin-bottom: 50px;
     text-align: center;
 }
 
-.homeBody h2 {
+.home-body h2 {
     font-family: 'Keania One', sans-serif;
     font-size: 40px;
     margin-bottom: 50px;
@@ -72,7 +73,6 @@
     align-items: center;
 }
 
-
 .QandA-info-container {
     display: flex;
     margin-left: 40px;
@@ -81,9 +81,7 @@
     color: white;
     font-family: "Imprima", sans-serif;
     border: #ffffff 3px solid;
-    background-color: black;
     flex-direction: column;
-    margin-bottom: 20px;
 }
 
 .QandA-info-item {
@@ -110,6 +108,7 @@
     color: black;
     padding: 10px;
     border-radius: 0 0 10px 10px;
+    margin-left: 20px;
 
 }
 
