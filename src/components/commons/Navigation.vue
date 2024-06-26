@@ -15,21 +15,24 @@
       <router-link to="/" class="nav-link">Home</router-link>
       <router-link to="/" class="nav-link">Guns</router-link>
       <router-link to="/" class="nav-link">Modifications</router-link>
-      <router-link to="/" class="nav-link">Admin</router-link>
-      <!--add check if it's admin or not, also remove admin for fav-->
-      <router-link to="/" class="nav-link">Favourite</router-link>
 
-      <router-link to="/">
-        <!-- <router-link href="/"    TODO: replace with the user selected icon>
-            <img class="AccountIcon" src="" alt="User Avatar" />
-          </router-link> -->
-        <router-link to="/login">
-          <img
-            class="AccountIcon"
-            src="../../assets/images/elements/profile-user.png"
-            alt="Default Profile"
-          />
-        </router-link>
+      <router-link to="/" v-if="userRole && isLoggedIn" class="nav-link"
+        >Admin</router-link
+      >
+      <!--add check if it's admin or not, also remove admin for fav-->
+      <router-link to="/" v-if="!userRole && isLoggedIn" class="nav-link"
+        >Favourite</router-link
+      >
+
+      <router-link to="/userprofile" v-if="isLoggedIn">
+        <img class="AccountIcon" :src="avatarPath" alt="User Avatar" />
+      </router-link>
+      <router-link to="/login" v-if="!isLoggedIn">
+        <img
+          class="AccountIcon"
+          src="../../assets/images/elements/profile-user.png"
+          alt="Default Profile"
+        />
       </router-link>
     </nav>
   </header>
@@ -42,7 +45,25 @@
 
 <script>
 import "@/assets/CSS/navigation.css";
+import { useLoggedInStore } from "@/stores/logged_in";
+import { useUserStore } from "@/stores/user";
+import { computed } from "vue";
+
 export default {
   name: "Navigation",
+  setup() {
+    const loggedInStore = useLoggedInStore();
+    const isLoggedIn = computed(() => loggedInStore.isLoggedIn);
+    const userRole = computed(
+      () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
+    );
+    const userAvatarID = computed(() => loggedInStore.getAvatarId);
+    const userStore = useUserStore();
+    const avatarPath = computed(() =>
+      userStore.returnUserProfilePicture(userAvatarID.value)
+    );
+
+    return { isLoggedIn, userRole, avatarPath };
+  },
 };
 </script>

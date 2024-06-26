@@ -148,6 +148,7 @@ import "@/assets/CSS/createAccount.css";
 import { ref } from "vue";
 import { useUserStore } from "@/stores/user";
 import Swal from "sweetalert2";
+import router from "@/router/index";
 
 export default {
   name: "MakeAccount",
@@ -160,7 +161,12 @@ export default {
 
     const submitForm = async () => {
       if (password.value !== confirmPassword.value) {
-        alert("Passwords do not match!");
+        Swal.fire({
+          title: "Error",
+          text: "Passwords do not match.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
         return;
       }
       try {
@@ -177,6 +183,8 @@ export default {
           text: "You can now log in.",
           icon: "success",
           confirmButtonText: "OK",
+        }).then(() => {
+          router.push("/login");
         });
       } catch (error) {
         Swal.fire({

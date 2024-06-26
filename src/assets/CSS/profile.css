@@ -1,12 +1,31 @@
-body {
+.the_body {
     background-color: black;
-    color: white;
     background-image: url('../images/elements/black gun.jpg');
     font-family: 'Khand', sans-serif;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
+}
+
+#subheader_top {
+    color: white;
+}
+
+.profile-form {
+    background: white;
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.profile-info {
+    display: flex;
+    align-items: flex-start;
+}
+
+.container {
+    color: black;
 }
 
 .text-paragraph {
@@ -16,12 +35,10 @@ body {
 
 .profile-subheader {
     text-align: center;
-    margin-bottom: 20px;
 }
 
 .profile-subheader2 {
     text-align: center;
-    margin-top: 10px;
 }
 
 .profile {
@@ -30,7 +47,7 @@ body {
 
 .profile-header {
     text-align: center;
-    margin-bottom: 20px;
+    color: white;
 }
 
 .profile-picture img {
@@ -44,34 +61,6 @@ body {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-}
-
-.profile-info {
-    margin-top: 20px;
-}
-
-.profile-info form {
-    max-width: 500px;
-    margin: auto;
-}
-
-.profile-info input[type="submit"] {
-    background-color: tomato;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    font-family: 'Keania One', sans-serif;
-}
-
-.profile-info input[type="submit"]:hover {
-    background-color: red;
-}
-
-.profile-info label {
-    margin-top: 10px;
 }
 
 .avatar-img {
@@ -99,6 +88,10 @@ input[type="radio"]:checked+.avatar-img {
     animation: pulseAnimation 2s infinite;
     transition: transform 0.3s ease;
     margin-top: 20px;
+}
+
+.text-center {
+    text-align: center;
 }
 
 @keyframes pulseAnimation {

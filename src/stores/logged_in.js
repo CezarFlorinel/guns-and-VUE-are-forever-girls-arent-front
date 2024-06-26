@@ -13,6 +13,7 @@ export const useLoggedInStore = defineStore("logged_in", {
         isLoggedIn: (state) => !!state.token && !!state.username,
         getToken: (state) => state.token,
         getEmail: (state) => state.email,
+        getUsername: (state) => state.username,
         isAdmin: (state) => state.admin,
         getAvatarId: (state) => state.avatarId,
     },
@@ -64,6 +65,31 @@ export const useLoggedInStore = defineStore("logged_in", {
                 console.log('Missing token, username, email, or avatarId');
             }
         },
+        logout() {
+            this.token = '';
+            this.username = '';
+            this.email = '';
+            this.admin = false;
+            this.avatarId = '';
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('email');
+            localStorage.removeItem('admin');
+            localStorage.removeItem('avatarId');
+
+            axios.defaults.headers.common['Authorization'] = '';
+        },
+        updateProfile(updatedData) {
+            this.username = updatedData.username;
+            this.email = updatedData.email;
+            this.avatarId = updatedData.avatarId;
+
+            localStorage.setItem('username', updatedData.username);
+            localStorage.setItem('email', updatedData.email);
+            localStorage.setItem('avatarId', updatedData.avatarId);
+        }
+
     },
 });
 
