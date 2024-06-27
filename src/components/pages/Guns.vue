@@ -10,6 +10,26 @@
 
     <div class="container mt-4">
       <h1 class="mb-4">Guns Collection</h1>
+      <!-- Filter Section -->
+      <div class="input-group mb-3">
+        <span class="input-group-text">Category</span>
+        <select class="form-select">
+          <option>Show All</option>
+          <option v-for="option in gunTypes" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <input
+          type="text"
+          class="form-control"
+          id="gunSearchInput"
+          placeholder="Search for guns by name..."
+        />
+      </div>
       <div class="row">
         <div class="guns_store col-12">
           <div v-for="gun in guns" :key="gun.gunId" class="card mb-3">
@@ -119,7 +139,7 @@
 
 <script>
 import "@/assets/CSS/guns.css";
-import { onMounted, toRefs, computed } from "vue";
+import { onMounted, toRefs, computed, ref } from "vue";
 import { gunsStore } from "@/stores/gun";
 import Swal from "sweetalert2";
 import { useLoggedInStore } from "@/stores/logged_in";
@@ -134,6 +154,7 @@ export default {
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
+    const selectedType = ref("");
 
     onMounted(async () => {
       if (isLoggedIn.value) {
@@ -149,6 +170,7 @@ export default {
       }
       try {
         await store.fetchGunsToDisplayInMainPage();
+        await store.fetchTypesOfGuns();
       } catch (error) {
         Swal.fire({
           icon: "error",
@@ -185,6 +207,7 @@ export default {
     };
 
     const {
+      gunTypes,
       guns,
       loading,
       error,
@@ -194,6 +217,7 @@ export default {
     } = toRefs(store);
 
     return {
+      gunTypes,
       guns,
       loading,
       error,
