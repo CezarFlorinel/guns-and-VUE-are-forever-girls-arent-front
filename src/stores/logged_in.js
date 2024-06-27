@@ -3,6 +3,7 @@ import axios from "../axios_auth";
 
 export const useLoggedInStore = defineStore("logged_in", {
     state: () => ({
+        id: localStorage.getItem('id') || '',
         username: localStorage.getItem('username') || '',
         token: localStorage.getItem('token') || '',
         email: localStorage.getItem('email') || '',
@@ -11,6 +12,7 @@ export const useLoggedInStore = defineStore("logged_in", {
     }),
     getters: {
         isLoggedIn: (state) => !!state.token && !!state.username,
+        getId: (state) => state.id,
         getToken: (state) => state.token,
         getEmail: (state) => state.email,
         getUsername: (state) => state.username,
@@ -26,12 +28,14 @@ export const useLoggedInStore = defineStore("logged_in", {
                 })
                     .then((response) => {
                         console.log(response.data);
+                        this.id = response.data.userId;
                         this.username = response.data.username;
                         this.token = response.data.token;
                         this.email = response.data.email;
                         this.admin = response.data.admin;
                         this.avatarId = response.data.avatarId;
 
+                        localStorage.setItem('id', response.data.userId);
                         localStorage.setItem('token', response.data.token);
                         localStorage.setItem('username', response.data.username);
                         localStorage.setItem('email', response.data.email);
@@ -49,6 +53,7 @@ export const useLoggedInStore = defineStore("logged_in", {
         },
         autoLogin() {
             const token = localStorage.getItem('token');
+            const id = localStorage.getItem('id');
             const username = localStorage.getItem('username');
             const email = localStorage.getItem('email');
             const admin = localStorage.getItem('admin') === 'true';
@@ -56,6 +61,7 @@ export const useLoggedInStore = defineStore("logged_in", {
 
             if (token && username && email && avatarId) {
                 axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
+                this.id = id;
                 this.token = token;
                 this.username = username;
                 this.email = email;
@@ -67,12 +73,14 @@ export const useLoggedInStore = defineStore("logged_in", {
         },
         logout() {
             this.token = '';
+            this.id = '';
             this.username = '';
             this.email = '';
             this.admin = false;
             this.avatarId = '';
 
             localStorage.removeItem('token');
+            localStorage.removeItem('id');
             localStorage.removeItem('username');
             localStorage.removeItem('email');
             localStorage.removeItem('admin');

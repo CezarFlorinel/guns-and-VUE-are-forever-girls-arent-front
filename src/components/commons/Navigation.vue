@@ -13,14 +13,19 @@
 
     <nav class="navigation">
       <router-link to="/" class="nav-link">Home</router-link>
-      <router-link to="/" class="nav-link">Guns</router-link>
-      <router-link to="/" class="nav-link">Modifications</router-link>
+      <router-link to="/guns" class="nav-link">Guns</router-link>
+      <router-link to="/modifications" class="nav-link"
+        >Modifications</router-link
+      >
 
       <router-link to="/" v-if="userRole && isLoggedIn" class="nav-link"
         >Admin</router-link
       >
       <!--add check if it's admin or not, also remove admin for fav-->
-      <router-link to="/" v-if="!userRole && isLoggedIn" class="nav-link"
+      <router-link
+        to="/favouriteguns"
+        v-if="!userRole && isLoggedIn"
+        class="nav-link"
         >Favourite</router-link
       >
 

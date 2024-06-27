@@ -12,7 +12,7 @@
 ### Admin Account
 
 - **Username:** `BossDeBoss`
-- **Password:** `lol23`
+- **Password:** `password1234`
 
 ### Normal User Account
 
