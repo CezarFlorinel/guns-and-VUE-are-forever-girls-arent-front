@@ -7,7 +7,9 @@ import EditProduct from '../components/products/EditProduct.vue';
 import Login from '../components/pages/Login.vue';
 import MakeAccount from '../components/pages/MakeAccount.vue';
 import UserProfile from '../components/pages/UserProfile.vue';
+import Guns from '../components/pages/Guns.vue';
 import Modifications from '../components/pages/Modifications.vue';
+
 
 
 const router = createRouter({
@@ -19,6 +21,7 @@ const router = createRouter({
     { path: '/makeaccount', component: MakeAccount },
     { path: '/userprofile', component: UserProfile },
     { path: '/modifications', component: Modifications },
+    { path: '/guns', component: Guns },
 
 
     { path: '/createproduct', component: CreateProduct },

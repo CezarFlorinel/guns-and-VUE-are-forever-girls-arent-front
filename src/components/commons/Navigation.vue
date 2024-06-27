@@ -13,7 +13,7 @@
 
     <nav class="navigation">
       <router-link to="/" class="nav-link">Home</router-link>
-      <router-link to="/" class="nav-link">Guns</router-link>
+      <router-link to="/guns" class="nav-link">Guns</router-link>
       <router-link to="/modifications" class="nav-link"
         >Modifications</router-link
       >

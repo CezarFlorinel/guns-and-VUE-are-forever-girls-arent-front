@@ -102,10 +102,6 @@ export default {
       fetchModifications,
     } = toRefs(store);
 
-    console.log(store.modifications);
-    console.log(store.totalPages);
-    console.log(store.currentPage);
-
     return {
       modifications,
       loading,
