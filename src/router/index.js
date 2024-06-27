@@ -2,13 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from '../components/pages/Home.vue';
 import ProductList from '../components/products/ProductList.vue';
-import CreateProduct from '../components/products/CreateProduct.vue';
-import EditProduct from '../components/products/EditProduct.vue';
 import Login from '../components/pages/Login.vue';
 import MakeAccount from '../components/pages/MakeAccount.vue';
 import UserProfile from '../components/pages/UserProfile.vue';
 import Guns from '../components/pages/Guns.vue';
 import Modifications from '../components/pages/Modifications.vue';
+import FavoriteGuns from '../components/pages/Favourite.vue';
 
 
 
@@ -22,12 +21,7 @@ const router = createRouter({
     { path: '/userprofile', component: UserProfile },
     { path: '/modifications', component: Modifications },
     { path: '/guns', component: Guns },
-
-
-    { path: '/createproduct', component: CreateProduct },
-    { path: '/editproduct/:id', component: EditProduct, props: true }
-
-
+    { path: '/favouriteguns', component: FavoriteGuns },
   ]
 })
 
