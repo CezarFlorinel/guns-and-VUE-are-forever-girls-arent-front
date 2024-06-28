@@ -113,7 +113,11 @@
       </div>
     </div>
 
-    <div v-if="userRole && isLoggedIn" class="createButtonForAdminWithJs">
+    <div
+      v-if="isLoggedIn"
+      @click="goToCreateGunPage"
+      class="createButtonForAdminWithJs"
+    >
       <button class="fancy-add-btn"><i class="fas fa-plus"></i> Add Gun</button>
     </div>
   </div>
@@ -125,6 +129,7 @@ import { onMounted, toRefs, computed } from "vue";
 import { gunsStore } from "@/stores/gun";
 import Swal from "sweetalert2";
 import { useLoggedInStore } from "@/stores/logged_in";
+import { useRouter } from "vue-router";
 
 export default {
   name: "FavoriteGuns",
@@ -136,6 +141,7 @@ export default {
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
+    const router = useRouter();
 
     onMounted(async () => {
       try {
@@ -168,6 +174,10 @@ export default {
       }
     };
 
+    const goToCreateGunPage = () => {
+      router.push("/creategun");
+    };
+
     const { favouriteGuns, loading, error, guns } = toRefs(store);
 
     return {
@@ -179,6 +189,7 @@ export default {
       isLoggedIn,
       userRole,
       removeFromFavourites,
+      goToCreateGunPage,
     };
   },
 };

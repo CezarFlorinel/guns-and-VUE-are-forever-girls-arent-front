@@ -104,7 +104,7 @@
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a
                   class="page-link"
-                  @click.prevent="fetchGunsToDisplayInMainPage(currentPage - 1)"
+                  @click.prevent="changePage(currentPage - 1)"
                   >Previous</a
                 >
               </li>
@@ -114,11 +114,9 @@
                 :key="page"
                 :class="{ active: currentPage === page }"
               >
-                <a
-                  class="page-link"
-                  @click.prevent="fetchGunsToDisplayInMainPage(page)"
-                  >{{ page }}</a
-                >
+                <a class="page-link" @click.prevent="changePage(page)">{{
+                  page
+                }}</a>
               </li>
               <li
                 class="page-item"
@@ -126,7 +124,7 @@
               >
                 <a
                   class="page-link"
-                  @click.prevent="fetchGunsToDisplayInMainPage(currentPage + 1)"
+                  @click.prevent="changePage(currentPage + 1)"
                   >Next</a
                 >
               </li>
@@ -223,7 +221,12 @@ export default {
       );
     };
 
-    watch([searchTerm, selectedType, currentPage], applyFilters);
+    const changePage = (page) => {
+      currentPage.value = page;
+      applyFilters();
+    };
+
+    watch([searchTerm, selectedType], applyFilters);
 
     const { gunTypes, guns, loading, error, totalPages } = toRefs(store);
 
@@ -242,6 +245,7 @@ export default {
       searchTerm,
       selectedType,
       applyFilters,
+      changePage,
     };
   },
 };

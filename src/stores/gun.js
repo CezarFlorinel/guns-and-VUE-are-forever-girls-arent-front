@@ -114,6 +114,21 @@ export const gunsStore = defineStore({
                 this.loading = false;
             }
         },
+        async createGun(formData) {
+            try {
+                const response = await axios.post(`/guns/create`, formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                return response.data;
+            } catch (error) {
+                console.error('Failed to create gun:', error);
+                throw error;
+            }
+        },
+
+
 
     },
 
