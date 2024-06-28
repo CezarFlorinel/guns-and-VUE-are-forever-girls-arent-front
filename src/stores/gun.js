@@ -14,20 +14,18 @@ export const gunsStore = defineStore({
         totalPages: 0,
     }),
     actions: {
-        async fetchGunsToDisplayInMainPage(page = 1, limit = 8) {
+        async fetchGunsToDisplayInMainPage(page = 1, limit = 8, searchTerm = '', type = '') {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.get(`/get-all-guns?page=${page}&limit=${limit}`);
+                const response = await axios.get(`/get-all-guns?page=${page}&limit=${limit}&search=${searchTerm}&type=${type}`);
                 this.guns = response.data.guns;
                 this.totalPages = Math.ceil(response.data.totalItems / limit);
                 this.currentPage = page;
-
             } catch (error) {
                 console.error('Failed to fetch data:', error);
                 this.error = "Failed to fetch data";
-            }
-            finally {
+            } finally {
                 this.loading = false;
             }
         },

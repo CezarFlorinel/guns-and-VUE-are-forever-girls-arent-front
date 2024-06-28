@@ -13,8 +13,12 @@
       <!-- Filter Section -->
       <div class="input-group mb-3">
         <span class="input-group-text">Category</span>
-        <select class="form-select">
-          <option>Show All</option>
+        <select
+          class="form-select"
+          v-model="selectedType"
+          @change="applyFilters"
+        >
+          <option value="">Show All</option>
           <option v-for="option in gunTypes" :key="option" :value="option">
             {{ option }}
           </option>
@@ -22,14 +26,16 @@
       </div>
 
       <!-- Search Bar -->
-      <div class="search-bar">
+      <div class="search-bar mb-3">
         <input
           type="text"
           class="form-control"
-          id="gunSearchInput"
+          v-model="searchTerm"
+          @input="applyFilters"
           placeholder="Search for guns by name..."
         />
       </div>
+
       <div class="row">
         <div class="guns_store col-12">
           <div v-for="gun in guns" :key="gun.gunId" class="card mb-3">
@@ -139,7 +145,7 @@
 
 <script>
 import "@/assets/CSS/guns.css";
-import { onMounted, toRefs, computed, ref } from "vue";
+import { onMounted, toRefs, computed, ref, watch } from "vue";
 import { gunsStore } from "@/stores/gun";
 import Swal from "sweetalert2";
 import { useLoggedInStore } from "@/stores/logged_in";
@@ -154,7 +160,9 @@ export default {
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
+    const searchTerm = ref("");
     const selectedType = ref("");
+    const currentPage = ref(1);
 
     onMounted(async () => {
       if (isLoggedIn.value) {
@@ -169,7 +177,7 @@ export default {
         }
       }
       try {
-        await store.fetchGunsToDisplayInMainPage();
+        await store.fetchGunsToDisplayInMainPage(currentPage.value);
         await store.fetchTypesOfGuns();
       } catch (error) {
         Swal.fire({
@@ -206,15 +214,18 @@ export default {
       return store.favouriteGunsIds.includes(gunId);
     };
 
-    const {
-      gunTypes,
-      guns,
-      loading,
-      error,
-      currentPage,
-      totalPages,
-      fetchGunsToDisplayInMainPage,
-    } = toRefs(store);
+    const applyFilters = () => {
+      store.fetchGunsToDisplayInMainPage(
+        currentPage.value,
+        8,
+        searchTerm.value,
+        selectedType.value
+      );
+    };
+
+    watch([searchTerm, selectedType, currentPage], applyFilters);
+
+    const { gunTypes, guns, loading, error, totalPages } = toRefs(store);
 
     return {
       gunTypes,
@@ -228,7 +239,9 @@ export default {
       userRole,
       currentPage,
       totalPages,
-      fetchGunsToDisplayInMainPage,
+      searchTerm,
+      selectedType,
+      applyFilters,
     };
   },
 };
