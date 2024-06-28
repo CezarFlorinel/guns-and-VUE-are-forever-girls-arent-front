@@ -127,6 +127,28 @@ export const gunsStore = defineStore({
                 throw error;
             }
         },
+        async getGunDetails(gunId) {
+            try {
+                const response = await axios.get(`/guns/${gunId}`);
+                return response.data;
+            } catch (error) {
+                console.error('Failed to fetch gun details:', error);
+                throw error;
+            }
+        },
+        async updateGun(gunId, formData) {
+            try {
+                const response = await axios.post(`/guns/update/${gunId}`, formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                });
+                return response.data;
+            } catch (error) {
+                console.error('Failed to update gun:', error);
+                throw error;
+            }
+        },
 
 
 

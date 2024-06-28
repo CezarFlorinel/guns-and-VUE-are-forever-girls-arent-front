@@ -89,6 +89,7 @@
                     <button
                       v-if="isLoggedIn"
                       class="edit_btn btn btn-primary btn-sm"
+                      @click="navigateToEditPage(gun.gunId)"
                     >
                       <i class="bi bi-pencil-fill"></i> Edit
                     </button>
@@ -177,6 +178,9 @@ export default {
     const goToCreateGunPage = () => {
       router.push("/creategun");
     };
+    const navigateToEditPage = (gunId) => {
+      router.push({ name: "UpdateGun", params: { id: gunId } });
+    };
 
     const { favouriteGuns, loading, error, guns } = toRefs(store);
 
@@ -190,6 +194,7 @@ export default {
       userRole,
       removeFromFavourites,
       goToCreateGunPage,
+      navigateToEditPage,
     };
   },
 };
