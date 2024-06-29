@@ -156,13 +156,13 @@
                 <div class="buttons-container d-flex align-items-start">
                   <button
                     class="edit-modification-btn btn btn-primary py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    onclick="editModification(this)"
+                    @click="editModification(modification)"
                   >
                     Edit
                   </button>
                   <button
                     class="delete-modification-btn btn btn-danger ml-2 py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    onclick="deleteModification(this)"
+                    @click="deleteModification(modification.modificationId)"
                   >
                     Delete
                   </button>
@@ -180,12 +180,14 @@
                 <p>Name:</p>
                 <input
                   type="text"
+                  v-model="newModification.name"
                   class="form-control nameInput mb-2"
                   placeholder="Enter name"
                   required
                 />
                 <p>Description:</p>
                 <textarea
+                  v-model="newModification.description"
                   class="form-control descriptionInput mb-2"
                   placeholder="Enter description"
                   required
@@ -193,6 +195,7 @@
                 <p>Estimated Price:</p>
                 <input
                   type="number"
+                  v-model="newModification.estimatedPrice"
                   step="0.01"
                   class="form-control estimatedPriceInput mb-2"
                   placeholder="Enter price"
@@ -201,6 +204,7 @@
                 <p>Image:</p>
                 <input
                   type="file"
+                  @change="handleImageUpload"
                   class="form-control imageInput mb-2"
                   required
                 />
@@ -208,7 +212,7 @@
               <div>
                 <button
                   class="save-modification-btn btn btn-success py-2 px-4 rounded hover:bg-opacity-75 transition"
-                  onclick="saveNewModification()"
+                  @click="saveNewModification"
                 >
                   Save
                 </button>
@@ -223,7 +227,7 @@
 
 <script>
 import "@/assets/CSS/admin.css";
-import { onMounted, toRefs, computed } from "vue";
+import { onMounted, toRefs, computed, ref } from "vue";
 import { useLoggedInStore } from "@/stores/logged_in";
 import { useUserStore } from "@/stores/user";
 import { useQaAStore } from "@/stores/QaA";
@@ -242,12 +246,19 @@ export default {
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
 
+    const newModification = ref({
+      name: "",
+      description: "",
+      estimatedPrice: "",
+      image: null,
+    });
+
     onMounted(async () => {
       if (isLoggedIn.value) {
         try {
           await userStore.fetchAllUsers();
           await QaAStore.fetchQuestionAndAnswers();
-          await modificationStore.fetchModifications();
+          await modificationStore.fetchModifications(1, 100);
         } catch (error) {
           Swal.fire({
             icon: "error",
@@ -319,6 +330,73 @@ export default {
       }
     };
 
+    const handleImageUpload = (event) => {
+      newModification.value.image = event.target.files[0];
+    };
+
+    const saveNewModification = async () => {
+      if (
+        !newModification.value.name ||
+        !newModification.value.description ||
+        !newModification.value.estimatedPrice ||
+        !newModification.value.image
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill in all the fields and upload an image!",
+        });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("modificationName", newModification.value.name);
+      formData.append(
+        "modificationDescription",
+        newModification.value.description
+      );
+      formData.append("estimatedPrice", newModification.value.estimatedPrice);
+      formData.append("modificationImage", newModification.value.image);
+
+      try {
+        await modificationStore.createModification(formData);
+        await modificationStore.fetchModifications(1, 100);
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Modification created successfully!",
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
+    const editModification = (modification) => {
+      // Add logic for editing modification
+    };
+
+    const deleteModification = async (modificationId) => {
+      try {
+        await modificationStore.deleteModification(modificationId);
+        await modificationStore.fetchModifications(1, 100);
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Modification deleted successfully!",
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
     const { users } = toRefs(userStore);
     const { questionAndAnswers } = toRefs(QaAStore);
     const { modifications } = toRefs(modificationStore);
@@ -332,6 +410,11 @@ export default {
       deleteUser,
       deleteQandA,
       createQuestionAndAnswer,
+      newModification,
+      handleImageUpload,
+      saveNewModification,
+      editModification,
+      deleteModification,
     };
   },
 };
