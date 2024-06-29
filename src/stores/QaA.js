@@ -24,8 +24,11 @@ export const useQaAStore = defineStore({
         },
         async createQuestionAndAnswer(data) {
             try {
-                const response = await axios.post("/questionAndAnswer", data);
-                this.questionAndAnswers.push(response.data);
+                const response = await axios.post("/questionAndAnswers", data, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
                 return response.data;
             } catch (error) {
                 throw new Error(error.response?.data?.errorMessage || "Failed to create question and answer");
@@ -33,7 +36,7 @@ export const useQaAStore = defineStore({
         },
         async deleteQuestionAndAnswer(id) {
             try {
-                await axios.delete(`/questionAndAnswer/${id}`);
+                await axios.delete(`/questionAndAnswers/${id}`);
                 this.questionAndAnswers = this.questionAndAnswers.filter(qaa => qaa.questionAndAnswerId !== id);
             } catch (error) {
                 throw new Error(error.response?.data?.errorMessage || "Failed to delete question and answer");

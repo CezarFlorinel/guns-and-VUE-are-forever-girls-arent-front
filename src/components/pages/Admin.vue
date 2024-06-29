@@ -53,23 +53,23 @@
             <div id="containerForQandAstorage">
               <div
                 class="qanda-card p-3 border-bottom d-flex justify-content-between align-items-start"
-                data-id="${QandA.questionAndAnswerId}"
+                v-for="QandA in questionAndAnswers"
+                :key="QandA.questionAndAnswerId"
               >
                 <div>
                   <p>Q:</p>
-                  <p
-                    class="question h5 font-weight-bold mb-0"
-                    contenteditable="false"
-                  >
-                    ${question}
+                  <p class="question h5 font-weight-bold mb-0">
+                    {{ QandA.question }}
                   </p>
                   <p>A:</p>
-                  <p class="answer mt-2" contenteditable="false">${answer}</p>
+                  <p class="answer mt-2">
+                    {{ QandA.answer }}
+                  </p>
                 </div>
                 <div class="buttons-container d-flex align-items-start">
                   <button
                     class="delete-QandA-btn btn btn-danger ml-2 py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    onclick="deleteQandA(this)"
+                    @click="deleteQandA(QandA.questionAndAnswerId)"
                   >
                     Delete
                   </button>
@@ -77,7 +77,7 @@
               </div>
             </div>
 
-            <div id="addForm" class="d-none p-3 bg-secondary border rounded">
+            <div id="addForm" class="p-3 bg-secondary border rounded">
               <h2 class="h5 mb-2">Add New Question and Answer:</h2>
               <div>
                 <label for="newQuestion">Question:</label>
@@ -85,28 +85,21 @@
                   type="text"
                   id="newQuestion"
                   class="form-control mt-1 mb-2"
+                  required
                 />
                 <label for="newAnswer">Answer:</label>
                 <textarea
                   id="newAnswer"
                   class="form-control mt-1 mb-2"
+                  required
                 ></textarea>
                 <button
-                  id="submitNewInfo"
+                  @click="createQuestionAndAnswer"
                   class="btn btn-primary py-2 px-4 rounded hover:bg-opacity-75 transition"
                 >
                   Submit
                 </button>
               </div>
-            </div>
-
-            <div class="p-3">
-              <button
-                id="addQandABtn"
-                class="add-QandA-btn btn btn-success py-2 px-4 rounded hover:bg-opacity-75 transition"
-              >
-                Add +
-              </button>
             </div>
           </div>
 
@@ -117,7 +110,8 @@
             <div id="containerForModifications">
               <div
                 class="modification-card p-3 border-bottom d-flex justify-content-between align-items-start"
-                data-id="${modification.modificationId}"
+                v-for="modification in modifications"
+                :key="modification.modificationId"
               >
                 <div>
                   <p>Name:</p>
@@ -125,26 +119,29 @@
                     class="name h5 font-weight-bold mb-0"
                     contenteditable="false"
                   >
-                    ${name}
+                    {{ modification.name }}
                   </p>
                   <br />
                   <p>Description:</p>
                   <p class="description mt-2" contenteditable="false">
-                    ${description}
+                    {{ modification.description }}
                   </p>
                   <p>Estimated Price:</p>
-                  <p class="estimatedPrice mt-2 d-block">€${formattedPrice}</p>
+                  <p class="estimatedPrice mt-2 d-block">
+                    €{{ modification.estimatedPrice }}
+                  </p>
                   <input
                     type="number"
                     step="0.01"
                     class="form-control mt-2 estimatedPriceInput d-none"
-                    value="${formattedPrice}"
                   />
                   <p>Image:</p>
                   <div class="row">
                     <div class="col-6 col-md-4 col-lg-3">
                       <img
-                        src=""
+                        :src="
+                          'data:image/jpeg;base64,' + modification.imagePath
+                        "
                         class="img-fluid img-thumbnail"
                         alt="Modification Image"
                       />
@@ -226,9 +223,11 @@
 
 <script>
 import "@/assets/CSS/admin.css";
-import { onMounted, toRefs, computed, ref, watch } from "vue";
+import { onMounted, toRefs, computed } from "vue";
 import { useLoggedInStore } from "@/stores/logged_in";
 import { useUserStore } from "@/stores/user";
+import { useQaAStore } from "@/stores/QaA";
+import { modificationsStore } from "@/stores/modifications";
 import Swal from "sweetalert2";
 
 export default {
@@ -236,7 +235,9 @@ export default {
   setup() {
     const loggedInStore = useLoggedInStore();
     const userStore = useUserStore();
+    const modificationStore = modificationsStore();
     const isLoggedIn = computed(() => loggedInStore.isLoggedIn);
+    const QaAStore = useQaAStore();
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
@@ -245,6 +246,8 @@ export default {
       if (isLoggedIn.value) {
         try {
           await userStore.fetchAllUsers();
+          await QaAStore.fetchQuestionAndAnswers();
+          await modificationStore.fetchModifications();
         } catch (error) {
           Swal.fire({
             icon: "error",
@@ -268,13 +271,67 @@ export default {
       }
     };
 
+    const deleteQandA = async (QandAId) => {
+      try {
+        await QaAStore.deleteQuestionAndAnswer(QandAId);
+        // await QaAStore.fetchQuestionAndAnswers();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
+    const createQuestionAndAnswer = async () => {
+      const newQuestion = document.getElementById("newQuestion").value;
+      const newAnswer = document.getElementById("newAnswer").value;
+
+      if (!newQuestion || !newAnswer) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill in all the fields!",
+        });
+        return;
+      }
+
+      const newQuestionAndAnswer = {
+        question: newQuestion,
+        answer: newAnswer,
+      };
+
+      try {
+        await QaAStore.createQuestionAndAnswer(newQuestionAndAnswer);
+        await QaAStore.fetchQuestionAndAnswers();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "New Q&A added successfully!",
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
     const { users } = toRefs(userStore);
+    const { questionAndAnswers } = toRefs(QaAStore);
+    const { modifications } = toRefs(modificationStore);
 
     return {
       isLoggedIn,
       userRole,
       users,
+      questionAndAnswers,
+      modifications,
       deleteUser,
+      deleteQandA,
+      createQuestionAndAnswer,
     };
   },
 };

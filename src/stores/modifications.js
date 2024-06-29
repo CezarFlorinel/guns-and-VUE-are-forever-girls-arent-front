@@ -30,5 +30,50 @@ export const modificationsStore = defineStore({
                 this.loading = false;
             }
         },
+        async createModification(data) {
+            this.loading = true;
+            this.error = null;
+            try {
+                await axios.post("/modifications", data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            } catch (error) {
+                this.error = "Failed to create modification";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async updateModification(id, data) {
+            this.loading = true;
+            this.error = null;
+            try {
+                await axios.put(`/modifications/${id}`, data, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+            } catch (error) {
+                this.error = "Failed to update modification";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+        async deleteModification(id) {
+            this.loading = true;
+            this.error = null;
+            try {
+                await axios.delete(`/modifications/${id}`);
+            } catch (error) {
+                this.error = "Failed to delete modification";
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
     },
+
 });
