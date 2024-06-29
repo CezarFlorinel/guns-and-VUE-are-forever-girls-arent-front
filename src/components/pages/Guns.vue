@@ -75,7 +75,7 @@
                     </button>
                   </div>
                   <img
-                    v-if="!userRole || !isLoggedIn"
+                    v-if="isLoggedIn && !userRole"
                     :src="
                       isFavourite(gun.gunId)
                         ? '../../src/assets/images/elements/star.png'
@@ -176,7 +176,10 @@ export default {
           Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "Something went wrong while finding your favourite guns!",
+            text:
+              "Something went wrong while finding your favourite guns!" +
+              "\n" +
+              error,
           });
         }
       }
@@ -187,7 +190,7 @@ export default {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: "Something went wrong!",
+          text: "Something went wrong!" + "\n" + error,
         });
       }
     });
@@ -213,7 +216,10 @@ export default {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: "Something went wrong while toggling the favourite status!",
+          text:
+            "Something went wrong while toggling the favourite status!" +
+            "\n" +
+            error,
         });
       }
     };
@@ -226,7 +232,8 @@ export default {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: "Something went wrong! Could not delete the gun!",
+          text:
+            "Something went wrong! Could not delete the gun!" + "\n" + error,
         });
       }
     };
@@ -255,13 +262,11 @@ export default {
 
     watch([searchTerm, selectedType], applyFilters);
 
-    const { gunTypes, guns, loading, error, totalPages } = toRefs(store);
+    const { gunTypes, guns, totalPages } = toRefs(store);
 
     return {
       gunTypes,
       guns,
-      loading,
-      error,
       playAudio,
       toggleFavourite,
       isFavourite,

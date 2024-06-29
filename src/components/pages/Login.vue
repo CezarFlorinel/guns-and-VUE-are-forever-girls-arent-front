@@ -75,7 +75,6 @@ export default {
           icon: "error",
           confirmButtonText: "OK",
         });
-        console.error(error);
       }
     };
 

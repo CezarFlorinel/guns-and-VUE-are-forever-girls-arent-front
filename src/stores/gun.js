@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import axios from "../axios_auth";
+import { showLoading, closeLoading } from "../utilities/loadingIndicator";
 
 export const gunsStore = defineStore({
     id: "gunsStore",
@@ -15,75 +16,66 @@ export const gunsStore = defineStore({
     }),
     actions: {
         async fetchGunsToDisplayInMainPage(page = 1, limit = 8, searchTerm = '', type = '') {
-            this.loading = true;
-            this.error = null;
+            showLoading('Loading...', 'Please wait while we fetch the guns');
             try {
                 const response = await axios.get(`/get-all-guns?page=${page}&limit=${limit}&search=${searchTerm}&type=${type}`);
                 this.guns = response.data.guns;
                 this.totalPages = Math.ceil(response.data.totalItems / limit);
                 this.currentPage = page;
             } catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
+                closeLoading();
+                throw new Error('Failed to fetch data from the server: ' + error);
             } finally {
-                this.loading = false;
+                closeLoading();
             }
         },
         async fetchTypesOfGuns() {
+            showLoading('Loading...', 'Please wait while we fetch the gun types');
             try {
                 const response = await axios.get(`/guns/gun-types`);
-                //console.log('API response:', response.data);
                 this.gunTypes = response.data;
             }
             catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
+                closeLoading();
+                throw new Error('Failed to fetch data from the server: ' + error);
             }
             finally {
-                this.loading = false;
+                closeLoading();
             }
         },
         async fetchGunsToDisplayInFavouritesPage(userID) {
-            this.loading = true;
-            this.error = null;
+            showLoading('Loading...', 'Please wait while we fetch the guns');
             try {
                 const response = await axios.get(`/guns/favourite-guns/${userID}`);
                 this.favouriteGuns = response.data;
                 return this.favouriteGuns;
             } catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
+                closeLoading();
+                throw new Error('Failed to fetch data from the server: ' + error);
             }
             finally {
-                this.loading = false;
+                closeLoading();
             }
 
         },
         async removeFromFavourites(gunID, userID) {
             try {
-                const response = await axios.delete(`/guns/favourite-guns/${userID}/${gunID}`);
+                await axios.delete(`/guns/favourite-guns/${userID}/${gunID}`);
                 this.favouriteGunsIds = this.favouriteGunsIds.filter(id => id !== gunID);
             }
             catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
-            }
-            finally {
-                this.loading = false;
+
+                throw new Error('Failed to remove gun from favourites: ' + error);
             }
 
         },
         async addGunToFavourites(gunID, userID) {
             try {
-                const response = await axios.post(`/guns/favourite-guns/${userID}/${gunID}`);
+                await axios.post(`/guns/favourite-guns/${userID}/${gunID}`);
                 this.favouriteGunsIds.push(gunID);
             }
             catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
-            }
-            finally {
-                this.loading = false;
+                throw new Error('Failed to add gun to favourites: ' + error);
             }
         },
         async getIdsOfFavouriteGuns(userID) {
@@ -93,26 +85,24 @@ export const gunsStore = defineStore({
                 return response.data;
             }
             catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
-            }
-            finally {
-                this.loading = false;
+                throw new Error('Failed to fetch data from the server: ' + error);
             }
         },
         async fetchGunsMadeByUser(userID) {
+            showLoading('Loading...', 'Please wait while we fetch your guns');
             try {
                 const response = await axios.get(`/guns/owned-guns/${userID}`);
                 this.guns = response.data;
                 return response.data;
             }
             catch (error) {
-                console.error('Failed to fetch data:', error);
-                this.error = "Failed to fetch data";
+                closeLoading();
+                throw new Error('Failed to fetch data from the server: ' + error);
             }
             finally {
-                this.loading = false;
+                closeLoading();
             }
+
         },
         async createGun(formData) {
             try {
@@ -123,17 +113,17 @@ export const gunsStore = defineStore({
                 });
                 return response.data;
             } catch (error) {
-                console.error('Failed to create gun:', error);
-                throw error;
+                throw new Error('Failed to create gun: ' + error);
             }
         },
         async getGunDetails(gunId) {
+            showLoading('Loading...', 'Please wait while we fetch the gun details');
             try {
                 const response = await axios.get(`/guns/${gunId}`);
                 return response.data;
             } catch (error) {
-                console.error('Failed to fetch gun details:', error);
-                throw error;
+                closeLoading();
+                throw new Error('Failed to fetch gun details: ' + error);
             }
         },
         async updateGun(gunId, formData) {
@@ -145,8 +135,7 @@ export const gunsStore = defineStore({
                 });
                 return response.data;
             } catch (error) {
-                console.error('Failed to update gun:', error);
-                throw error;
+                throw new Error('Failed to update gun: ' + error);
             }
         },
         async deleteGun(gunId) {
@@ -154,8 +143,7 @@ export const gunsStore = defineStore({
                 const response = await axios.delete(`/guns/${gunId}`);
                 return response.data;
             } catch (error) {
-                console.error('Failed to delete gun:', error);
-                throw error;
+                throw new Error('Failed to delete gun: ' + error);
             }
         }
     },
