@@ -8,7 +8,9 @@ import Guns from '../components/pages/Guns.vue';
 import CreateGun from '../components/pages/CreateGun.vue';
 import Modifications from '../components/pages/Modifications.vue';
 import UpdateGun from '../components/pages/UpdateGun.vue';
+import Admin from '../components/pages/Admin.vue';
 import FavoriteGuns from '../components/pages/Favourite.vue';
+
 
 
 const router = createRouter({
@@ -22,7 +24,8 @@ const router = createRouter({
     { path: '/guns', component: Guns },
     { path: '/favouriteguns', component: FavoriteGuns },
     { path: '/creategun', component: CreateGun },
-    { path: '/updategun/:id', name: 'UpdateGun', component: UpdateGun, props: true }
+    { path: '/updategun/:id', name: 'UpdateGun', component: UpdateGun, props: true },
+    { path: '/admin', component: Admin }
   ]
 })
 

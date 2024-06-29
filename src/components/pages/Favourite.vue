@@ -83,6 +83,7 @@
                     <button
                       v-if="isLoggedIn"
                       class="delete_btn btn btn-danger btn-sm"
+                      @click="deleteGun(gun.gunId)"
                     >
                       <i class="bi bi-trash-fill"></i> Delete
                     </button>
@@ -175,6 +176,19 @@ export default {
       }
     };
 
+    const deleteGun = async (gunId) => {
+      try {
+        await store.deleteGun(gunId);
+        await store.fetchGunsMadeByUser(userID.value);
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong! Could not delete the gun!",
+        });
+      }
+    };
+
     const goToCreateGunPage = () => {
       router.push("/creategun");
     };
@@ -195,6 +209,7 @@ export default {
       removeFromFavourites,
       goToCreateGunPage,
       navigateToEditPage,
+      deleteGun,
     };
   },
 };

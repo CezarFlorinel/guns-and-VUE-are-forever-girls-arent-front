@@ -149,9 +149,15 @@ export const gunsStore = defineStore({
                 throw error;
             }
         },
-
-
-
+        async deleteGun(gunId) {
+            try {
+                const response = await axios.delete(`/guns/${gunId}`);
+                return response.data;
+            } catch (error) {
+                console.error('Failed to delete gun:', error);
+                throw error;
+            }
+        }
     },
 
 });

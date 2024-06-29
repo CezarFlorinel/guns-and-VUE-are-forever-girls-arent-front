@@ -22,6 +22,23 @@ export const useQaAStore = defineStore({
                 this.loading = false;
             }
         },
+        async createQuestionAndAnswer(data) {
+            try {
+                const response = await axios.post("/questionAndAnswer", data);
+                this.questionAndAnswers.push(response.data);
+                return response.data;
+            } catch (error) {
+                throw new Error(error.response?.data?.errorMessage || "Failed to create question and answer");
+            }
+        },
+        async deleteQuestionAndAnswer(id) {
+            try {
+                await axios.delete(`/questionAndAnswer/${id}`);
+                this.questionAndAnswers = this.questionAndAnswers.filter(qaa => qaa.questionAndAnswerId !== id);
+            } catch (error) {
+                throw new Error(error.response?.data?.errorMessage || "Failed to delete question and answer");
+            }
+        }
     },
     getters: {
         getQuestionAndAnswerById: (state) => (id) => {

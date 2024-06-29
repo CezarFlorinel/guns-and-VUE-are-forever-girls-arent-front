@@ -62,12 +62,14 @@
                     <button
                       v-if="userRole && isLoggedIn"
                       class="delete_btn btn btn-danger btn-sm"
+                      @click="deleteGun(gun.gunId)"
                     >
                       <i class="bi bi-trash-fill"></i> Delete
                     </button>
                     <button
                       v-if="userRole && isLoggedIn"
                       class="edit_btn btn btn-primary btn-sm"
+                      @click="navigateToEditPage(gun.gunId)"
                     >
                       <i class="bi bi-pencil-fill"></i> Edit
                     </button>
@@ -226,6 +228,10 @@ export default {
       applyFilters();
     };
 
+    const navigateToEditPage = (gunId) => {
+      router.push({ name: "UpdateGun", params: { id: gunId } });
+    };
+
     watch([searchTerm, selectedType], applyFilters);
 
     const { gunTypes, guns, loading, error, totalPages } = toRefs(store);
@@ -246,6 +252,7 @@ export default {
       selectedType,
       applyFilters,
       changePage,
+      navigateToEditPage,
     };
   },
 };
