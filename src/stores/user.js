@@ -6,6 +6,7 @@ import axios from "../axios_auth";
 export const useUserStore = defineStore('user', {
     state: () => ({
         userData: null,  // This will store user data after creation.
+        users: [],
     }),
     actions: {
         async createUser(data) {
@@ -63,7 +64,27 @@ export const useUserStore = defineStore('user', {
             } catch (error) {
                 throw new Error(error.response?.data?.errorMessage || 'Failed to update user password');
             }
+        },
+        async deleteUser(userID) {
+            try {
+                const response = await axios.delete(`/user/${userID}`);
+                return response.data;
+
+            } catch (error) {
+                throw new Error(error.response?.data?.errorMessage || 'Failed to delete user');
+            }
+
+        },
+        async fetchAllUsers() {
+            try {
+                const response = await axios.get('/user/get-all-users');
+                this.users = response.data;
+                return response.data;
+            } catch (error) {
+                throw new Error(error.response?.data?.errorMessage || 'Failed to get all users');
+            }
         }
+
 
     },
 

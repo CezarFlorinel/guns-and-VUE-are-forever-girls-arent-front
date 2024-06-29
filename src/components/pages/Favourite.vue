@@ -83,12 +83,14 @@
                     <button
                       v-if="isLoggedIn"
                       class="delete_btn btn btn-danger btn-sm"
+                      @click="deleteGun(gun.gunId)"
                     >
                       <i class="bi bi-trash-fill"></i> Delete
                     </button>
                     <button
                       v-if="isLoggedIn"
                       class="edit_btn btn btn-primary btn-sm"
+                      @click="navigateToEditPage(gun.gunId)"
                     >
                       <i class="bi bi-pencil-fill"></i> Edit
                     </button>
@@ -113,7 +115,11 @@
       </div>
     </div>
 
-    <div v-if="userRole && isLoggedIn" class="createButtonForAdminWithJs">
+    <div
+      v-if="isLoggedIn"
+      @click="goToCreateGunPage"
+      class="createButtonForAdminWithJs"
+    >
       <button class="fancy-add-btn"><i class="fas fa-plus"></i> Add Gun</button>
     </div>
   </div>
@@ -125,6 +131,7 @@ import { onMounted, toRefs, computed } from "vue";
 import { gunsStore } from "@/stores/gun";
 import Swal from "sweetalert2";
 import { useLoggedInStore } from "@/stores/logged_in";
+import { useRouter } from "vue-router";
 
 export default {
   name: "FavoriteGuns",
@@ -136,6 +143,7 @@ export default {
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
+    const router = useRouter();
 
     onMounted(async () => {
       try {
@@ -168,6 +176,26 @@ export default {
       }
     };
 
+    const deleteGun = async (gunId) => {
+      try {
+        await store.deleteGun(gunId);
+        await store.fetchGunsMadeByUser(userID.value);
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong! Could not delete the gun!",
+        });
+      }
+    };
+
+    const goToCreateGunPage = () => {
+      router.push("/creategun");
+    };
+    const navigateToEditPage = (gunId) => {
+      router.push({ name: "UpdateGun", params: { id: gunId } });
+    };
+
     const { favouriteGuns, loading, error, guns } = toRefs(store);
 
     return {
@@ -179,6 +207,9 @@ export default {
       isLoggedIn,
       userRole,
       removeFromFavourites,
+      goToCreateGunPage,
+      navigateToEditPage,
+      deleteGun,
     };
   },
 };

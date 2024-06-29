@@ -10,6 +10,32 @@
 
     <div class="container mt-4">
       <h1 class="mb-4">Guns Collection</h1>
+      <!-- Filter Section -->
+      <div class="input-group mb-3">
+        <span class="input-group-text">Category</span>
+        <select
+          class="form-select"
+          v-model="selectedType"
+          @change="applyFilters"
+        >
+          <option value="">Show All</option>
+          <option v-for="option in gunTypes" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar mb-3">
+        <input
+          type="text"
+          class="form-control"
+          v-model="searchTerm"
+          @input="applyFilters"
+          placeholder="Search for guns by name..."
+        />
+      </div>
+
       <div class="row">
         <div class="guns_store col-12">
           <div v-for="gun in guns" :key="gun.gunId" class="card mb-3">
@@ -36,12 +62,14 @@
                     <button
                       v-if="userRole && isLoggedIn"
                       class="delete_btn btn btn-danger btn-sm"
+                      @click="deleteGun(gun.gunId)"
                     >
                       <i class="bi bi-trash-fill"></i> Delete
                     </button>
                     <button
                       v-if="userRole && isLoggedIn"
                       class="edit_btn btn btn-primary btn-sm"
+                      @click="navigateToEditPage(gun.gunId)"
                     >
                       <i class="bi bi-pencil-fill"></i> Edit
                     </button>
@@ -78,7 +106,7 @@
               <li class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a
                   class="page-link"
-                  @click.prevent="fetchGunsToDisplayInMainPage(currentPage - 1)"
+                  @click.prevent="changePage(currentPage - 1)"
                   >Previous</a
                 >
               </li>
@@ -88,11 +116,9 @@
                 :key="page"
                 :class="{ active: currentPage === page }"
               >
-                <a
-                  class="page-link"
-                  @click.prevent="fetchGunsToDisplayInMainPage(page)"
-                  >{{ page }}</a
-                >
+                <a class="page-link" @click.prevent="changePage(page)">{{
+                  page
+                }}</a>
               </li>
               <li
                 class="page-item"
@@ -100,7 +126,7 @@
               >
                 <a
                   class="page-link"
-                  @click.prevent="fetchGunsToDisplayInMainPage(currentPage + 1)"
+                  @click.prevent="changePage(currentPage + 1)"
                   >Next</a
                 >
               </li>
@@ -119,7 +145,7 @@
 
 <script>
 import "@/assets/CSS/guns.css";
-import { onMounted, toRefs, computed } from "vue";
+import { onMounted, toRefs, computed, ref, watch } from "vue";
 import { gunsStore } from "@/stores/gun";
 import Swal from "sweetalert2";
 import { useLoggedInStore } from "@/stores/logged_in";
@@ -134,6 +160,9 @@ export default {
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
+    const searchTerm = ref("");
+    const selectedType = ref("");
+    const currentPage = ref(1);
 
     onMounted(async () => {
       if (isLoggedIn.value) {
@@ -148,7 +177,8 @@ export default {
         }
       }
       try {
-        await store.fetchGunsToDisplayInMainPage();
+        await store.fetchGunsToDisplayInMainPage(currentPage.value);
+        await store.fetchTypesOfGuns();
       } catch (error) {
         Swal.fire({
           icon: "error",
@@ -184,16 +214,30 @@ export default {
       return store.favouriteGunsIds.includes(gunId);
     };
 
-    const {
-      guns,
-      loading,
-      error,
-      currentPage,
-      totalPages,
-      fetchGunsToDisplayInMainPage,
-    } = toRefs(store);
+    const applyFilters = () => {
+      store.fetchGunsToDisplayInMainPage(
+        currentPage.value,
+        8,
+        searchTerm.value,
+        selectedType.value
+      );
+    };
+
+    const changePage = (page) => {
+      currentPage.value = page;
+      applyFilters();
+    };
+
+    const navigateToEditPage = (gunId) => {
+      router.push({ name: "UpdateGun", params: { id: gunId } });
+    };
+
+    watch([searchTerm, selectedType], applyFilters);
+
+    const { gunTypes, guns, loading, error, totalPages } = toRefs(store);
 
     return {
+      gunTypes,
       guns,
       loading,
       error,
@@ -204,7 +248,11 @@ export default {
       userRole,
       currentPage,
       totalPages,
-      fetchGunsToDisplayInMainPage,
+      searchTerm,
+      selectedType,
+      applyFilters,
+      changePage,
+      navigateToEditPage,
     };
   },
 };

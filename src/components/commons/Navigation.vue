@@ -18,10 +18,9 @@
         >Modifications</router-link
       >
 
-      <router-link to="/" v-if="userRole && isLoggedIn" class="nav-link"
+      <router-link to="/admin" v-if="userRole && isLoggedIn" class="nav-link"
         >Admin</router-link
       >
-      <!--add check if it's admin or not, also remove admin for fav-->
       <router-link
         to="/favouriteguns"
         v-if="!userRole && isLoggedIn"
@@ -72,3 +71,9 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.nav-link:hover {
+  color: red;
+}
+</style>
