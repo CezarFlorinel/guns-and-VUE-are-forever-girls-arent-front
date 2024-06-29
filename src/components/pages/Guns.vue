@@ -138,7 +138,9 @@
     </div>
 
     <div v-if="userRole && isLoggedIn" class="createButtonForAdminWithJs">
-      <button class="fancy-add-btn"><i class="fas fa-plus"></i> Add Gun</button>
+      <button @click="goToCreateGunPage" class="fancy-add-btn">
+        <i class="fas fa-plus"></i> Add Gun
+      </button>
     </div>
   </div>
 </template>
@@ -149,6 +151,7 @@ import { onMounted, toRefs, computed, ref, watch } from "vue";
 import { gunsStore } from "@/stores/gun";
 import Swal from "sweetalert2";
 import { useLoggedInStore } from "@/stores/logged_in";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Guns",
@@ -162,6 +165,7 @@ export default {
     );
     const searchTerm = ref("");
     const selectedType = ref("");
+    const router = useRouter();
     const currentPage = ref(1);
 
     onMounted(async () => {
@@ -193,6 +197,10 @@ export default {
       audio.play();
     };
 
+    const goToCreateGunPage = () => {
+      router.push("/creategun");
+    };
+
     const toggleFavourite = async (gunId) => {
       try {
         if (store.favouriteGunsIds.includes(gunId)) {
@@ -206,6 +214,19 @@ export default {
           icon: "error",
           title: "Oops...",
           text: "Something went wrong while toggling the favourite status!",
+        });
+      }
+    };
+
+    const deleteGun = async (gunId) => {
+      try {
+        await store.deleteGun(gunId);
+        location.reload();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong! Could not delete the gun!",
         });
       }
     };
@@ -253,6 +274,8 @@ export default {
       applyFilters,
       changePage,
       navigateToEditPage,
+      goToCreateGunPage,
+      deleteGun,
     };
   },
 };

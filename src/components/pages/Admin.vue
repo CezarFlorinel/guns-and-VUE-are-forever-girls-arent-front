@@ -53,23 +53,23 @@
             <div id="containerForQandAstorage">
               <div
                 class="qanda-card p-3 border-bottom d-flex justify-content-between align-items-start"
-                data-id="${QandA.questionAndAnswerId}"
+                v-for="QandA in questionAndAnswers"
+                :key="QandA.questionAndAnswerId"
               >
                 <div>
                   <p>Q:</p>
-                  <p
-                    class="question h5 font-weight-bold mb-0"
-                    contenteditable="false"
-                  >
-                    ${question}
+                  <p class="question h5 font-weight-bold mb-0">
+                    {{ QandA.question }}
                   </p>
                   <p>A:</p>
-                  <p class="answer mt-2" contenteditable="false">${answer}</p>
+                  <p class="answer mt-2">
+                    {{ QandA.answer }}
+                  </p>
                 </div>
                 <div class="buttons-container d-flex align-items-start">
                   <button
                     class="delete-QandA-btn btn btn-danger ml-2 py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    onclick="deleteQandA(this)"
+                    @click="deleteQandA(QandA.questionAndAnswerId)"
                   >
                     Delete
                   </button>
@@ -77,7 +77,7 @@
               </div>
             </div>
 
-            <div id="addForm" class="d-none p-3 bg-secondary border rounded">
+            <div id="addForm" class="p-3 bg-secondary border rounded">
               <h2 class="h5 mb-2">Add New Question and Answer:</h2>
               <div>
                 <label for="newQuestion">Question:</label>
@@ -85,28 +85,21 @@
                   type="text"
                   id="newQuestion"
                   class="form-control mt-1 mb-2"
+                  required
                 />
                 <label for="newAnswer">Answer:</label>
                 <textarea
                   id="newAnswer"
                   class="form-control mt-1 mb-2"
+                  required
                 ></textarea>
                 <button
-                  id="submitNewInfo"
+                  @click="createQuestionAndAnswer"
                   class="btn btn-primary py-2 px-4 rounded hover:bg-opacity-75 transition"
                 >
                   Submit
                 </button>
               </div>
-            </div>
-
-            <div class="p-3">
-              <button
-                id="addQandABtn"
-                class="add-QandA-btn btn btn-success py-2 px-4 rounded hover:bg-opacity-75 transition"
-              >
-                Add +
-              </button>
             </div>
           </div>
 
@@ -117,60 +110,88 @@
             <div id="containerForModifications">
               <div
                 class="modification-card p-3 border-bottom d-flex justify-content-between align-items-start"
-                data-id="${modification.modificationId}"
+                v-for="modification in modifications"
+                :key="modification.modificationId"
               >
                 <div>
                   <p>Name:</p>
-                  <p
-                    class="name h5 font-weight-bold mb-0"
-                    contenteditable="false"
-                  >
-                    ${name}
+                  <p class="name h5 font-weight-bold mb-0">
+                    {{ modification.name }}
                   </p>
                   <br />
                   <p>Description:</p>
-                  <p class="description mt-2" contenteditable="false">
-                    ${description}
+                  <p class="description mt-2">
+                    {{ modification.description }}
                   </p>
                   <p>Estimated Price:</p>
-                  <p class="estimatedPrice mt-2 d-block">€${formattedPrice}</p>
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control mt-2 estimatedPriceInput d-none"
-                    value="${formattedPrice}"
-                  />
+                  <p class="estimatedPrice mt-2 d-block">
+                    €{{ modification.estimatedPrice }}
+                  </p>
                   <p>Image:</p>
                   <div class="row">
                     <div class="col-6 col-md-4 col-lg-3">
                       <img
-                        src=""
+                        :src="
+                          'data:image/jpeg;base64,' + modification.imagePath
+                        "
                         class="img-fluid img-thumbnail"
                         alt="Modification Image"
                       />
-                    </div>
-                    <div
-                      class="col-6 col-md-8 col-lg-9 d-flex flex-column justify-content-end"
-                    >
-                      <input type="file" class="form-control mt-2" disabled />
                     </div>
                   </div>
                 </div>
                 <div class="buttons-container d-flex align-items-start">
                   <button
                     class="edit-modification-btn btn btn-primary py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    onclick="editModification(this)"
+                    @click="editModification(modification.modificationId)"
                   >
                     Edit
                   </button>
                   <button
                     class="delete-modification-btn btn btn-danger ml-2 py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    onclick="deleteModification(this)"
+                    @click="deleteModification(modification.modificationId)"
                   >
                     Delete
                   </button>
                 </div>
               </div>
+              <nav aria-label="page navigation">
+                <ul class="pagination">
+                  <li
+                    class="page-item"
+                    :class="{ disabled: currentPage === 1 }"
+                  >
+                    <a
+                      class="page-link"
+                      @click.prevent="fetchModifications(currentPage - 1)"
+                      >Previous</a
+                    >
+                  </li>
+                  <li
+                    class="page-item"
+                    v-for="page in totalPages"
+                    :key="page"
+                    :class="{ active: currentPage === page }"
+                  >
+                    <a
+                      class="page-link"
+                      @click.prevent="fetchModifications(page)"
+                      >{{ page }}</a
+                    >
+                  </li>
+                  <li
+                    class="page-item"
+                    :class="{ disabled: currentPage === totalPages }"
+                  >
+                    <a
+                      class="page-link"
+                      @click.prevent="fetchModifications(currentPage + 1)"
+                      >Next</a
+                    >
+                  </li>
+                </ul>
+              </nav>
+              <br />
             </div>
 
             <h2>Create new modification</h2>
@@ -183,12 +204,14 @@
                 <p>Name:</p>
                 <input
                   type="text"
+                  v-model="newModification.name"
                   class="form-control nameInput mb-2"
                   placeholder="Enter name"
                   required
                 />
                 <p>Description:</p>
                 <textarea
+                  v-model="newModification.description"
                   class="form-control descriptionInput mb-2"
                   placeholder="Enter description"
                   required
@@ -196,6 +219,7 @@
                 <p>Estimated Price:</p>
                 <input
                   type="number"
+                  v-model="newModification.estimatedPrice"
                   step="0.01"
                   class="form-control estimatedPriceInput mb-2"
                   placeholder="Enter price"
@@ -204,6 +228,7 @@
                 <p>Image:</p>
                 <input
                   type="file"
+                  @change="handleImageUpload"
                   class="form-control imageInput mb-2"
                   required
                 />
@@ -211,9 +236,72 @@
               <div>
                 <button
                   class="save-modification-btn btn btn-success py-2 px-4 rounded hover:bg-opacity-75 transition"
-                  onclick="saveNewModification()"
+                  @click="saveNewModification"
                 >
                   Save
+                </button>
+              </div>
+            </div>
+            <!-- Edit modification section -->
+            <h2>Edit modification</h2>
+            <p>Select a modification to edit</p>
+            <div
+              v-if="isEditing"
+              id="editModificationCard"
+              class="modification-card p-3 border-bottom d-flex justify-content-between mt-3"
+            >
+              <div>
+                <p>Name:</p>
+                <input
+                  type="text"
+                  v-model="editModificationData.name"
+                  class="form-control nameInput mb-2"
+                  placeholder="Enter name"
+                  required
+                />
+                <p>Description:</p>
+                <textarea
+                  v-model="editModificationData.description"
+                  class="form-control descriptionInput mb-2"
+                  placeholder="Enter description"
+                  required
+                ></textarea>
+                <p>Estimated Price:</p>
+                <input
+                  type="number"
+                  v-model="editModificationData.estimatedPrice"
+                  step="0.01"
+                  class="form-control estimatedPriceInput mb-2"
+                  placeholder="Enter price"
+                  required
+                />
+                <p>Image:</p>
+                <input
+                  type="file"
+                  @change="handleEditImageUpload"
+                  class="form-control imageInput mb-2"
+                />
+                <img
+                  v-if="editModificationData.imagePath"
+                  :src="
+                    'data:image/jpeg;base64,' + editModificationData.imagePath
+                  "
+                  class="img-fluid img-thumbnail mt-2"
+                  alt="Modification Image"
+                />
+              </div>
+              <div>
+                <button
+                  class="save-modification-btn btn btn-success py-2 px-4 rounded hover:bg-opacity-75 transition"
+                  @click="saveEditedModification"
+                >
+                  Save
+                </button>
+                <button
+                  class="cancel-edit-modification-btn btn btn-secondary py-2 px-4 rounded hover:bg-opacity-75 transition ml-2"
+                  @click="cancelEdit"
+                >
+                  Cancel
                 </button>
               </div>
             </div>
@@ -226,25 +314,51 @@
 
 <script>
 import "@/assets/CSS/admin.css";
-import { onMounted, toRefs, computed, ref, watch } from "vue";
+import { onMounted, toRefs, computed, ref } from "vue";
 import { useLoggedInStore } from "@/stores/logged_in";
 import { useUserStore } from "@/stores/user";
+import { useQaAStore } from "@/stores/QaA";
+import { modificationsStore } from "@/stores/modifications";
 import Swal from "sweetalert2";
 
 export default {
   name: "Admin",
   setup() {
+    //#region Variables
     const loggedInStore = useLoggedInStore();
     const userStore = useUserStore();
+    const modificationStore = modificationsStore();
     const isLoggedIn = computed(() => loggedInStore.isLoggedIn);
+    const QaAStore = useQaAStore();
     const userRole = computed(
       () => loggedInStore.isAdmin || localStorage.getItem("admin") === "true"
     );
+
+    const newModification = ref({
+      name: "",
+      description: "",
+      estimatedPrice: "",
+      image: null,
+    });
+
+    const isEditing = ref(false);
+    const editModificationData = ref({
+      id: null,
+      name: "",
+      description: "",
+      estimatedPrice: "",
+      image: null,
+      imagePath: "",
+    });
+
+    //#endregion
 
     onMounted(async () => {
       if (isLoggedIn.value) {
         try {
           await userStore.fetchAllUsers();
+          await QaAStore.fetchQuestionAndAnswers();
+          await modificationStore.fetchModifications();
         } catch (error) {
           Swal.fire({
             icon: "error",
@@ -255,6 +369,7 @@ export default {
       }
     });
 
+    //#region delete functions
     const deleteUser = async (userId) => {
       try {
         await userStore.deleteUser(userId);
@@ -268,13 +383,232 @@ export default {
       }
     };
 
+    const deleteQandA = async (QandAId) => {
+      try {
+        await QaAStore.deleteQuestionAndAnswer(QandAId);
+        // await QaAStore.fetchQuestionAndAnswers();
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+    //#endregion
+
+    //#region create functions question and answer
+    const createQuestionAndAnswer = async () => {
+      const newQuestion = document.getElementById("newQuestion").value;
+      const newAnswer = document.getElementById("newAnswer").value;
+
+      if (!newQuestion || !newAnswer) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill in all the fields!",
+        });
+        return;
+      }
+
+      const newQuestionAndAnswer = {
+        question: newQuestion,
+        answer: newAnswer,
+      };
+
+      try {
+        await QaAStore.createQuestionAndAnswer(newQuestionAndAnswer);
+        await QaAStore.fetchQuestionAndAnswers();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "New Q&A added successfully!",
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
+    //#endregion
+
+    //#region create functions modification
+    const handleImageUpload = (event) => {
+      newModification.value.image = event.target.files[0];
+    };
+
+    const saveNewModification = async () => {
+      if (
+        !newModification.value.name ||
+        !newModification.value.description ||
+        !newModification.value.estimatedPrice ||
+        !newModification.value.image
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill in all the fields and upload an image!",
+        });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("modificationName", newModification.value.name);
+      formData.append(
+        "modificationDescription",
+        newModification.value.description
+      );
+      formData.append("estimatedPrice", newModification.value.estimatedPrice);
+      formData.append("modificationImage", newModification.value.image);
+
+      try {
+        await modificationStore.createModification(formData);
+        await modificationStore.fetchModifications();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Modification created successfully!",
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
+    //#endregion
+
+    const handleEditImageUpload = (event) => {
+      editModificationData.value.image = event.target.files[0];
+    };
+
+    const editModification = (modificationId) => {
+      const modification = modificationStore.getModificationById(
+        parseInt(modificationId)
+      );
+      isEditing.value = true;
+      editModificationData.value = {
+        id: modification.modificationId,
+        name: modification.name,
+        description: modification.description,
+        estimatedPrice: modification.estimatedPrice,
+        imagePath: modification.imagePath,
+        image: null,
+      };
+    };
+
+    const saveEditedModification = async () => {
+      if (
+        !editModificationData.value.name ||
+        !editModificationData.value.description ||
+        !editModificationData.value.estimatedPrice
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill in all the fields!",
+        });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("modificationName", editModificationData.value.name);
+      formData.append(
+        "modificationDescription",
+        editModificationData.value.description
+      );
+      formData.append(
+        "estimatedPrice",
+        editModificationData.value.estimatedPrice
+      );
+
+      if (editModificationData.value.image) {
+        formData.append("modificationImage", editModificationData.value.image);
+      }
+
+      try {
+        await modificationStore.updateModification(
+          editModificationData.value.id,
+          formData
+        );
+        await modificationStore.fetchModifications();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Modification updated successfully!",
+        });
+        isEditing.value = false;
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
+    const cancelEdit = () => {
+      isEditing.value = false;
+      editModificationData.value = {
+        id: null,
+        name: "",
+        description: "",
+        estimatedPrice: "",
+        image: null,
+        imagePath: "",
+      };
+    };
+
+    const deleteModification = async (modificationId) => {
+      try {
+        await modificationStore.deleteModification(modificationId);
+        await modificationStore.fetchModifications();
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Modification deleted successfully!",
+        });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
     const { users } = toRefs(userStore);
+    const { questionAndAnswers } = toRefs(QaAStore);
+    const { modifications, currentPage, totalPages, fetchModifications } =
+      toRefs(modificationStore);
 
     return {
       isLoggedIn,
       userRole,
       users,
+      questionAndAnswers,
+      modifications,
       deleteUser,
+      deleteQandA,
+      createQuestionAndAnswer,
+      newModification,
+      handleImageUpload,
+      saveNewModification,
+      editModification,
+      editModificationData,
+      isEditing,
+      handleEditImageUpload,
+      saveEditedModification,
+      cancelEdit,
+      deleteModification,
+      currentPage,
+      totalPages,
+      fetchModifications,
     };
   },
 };
