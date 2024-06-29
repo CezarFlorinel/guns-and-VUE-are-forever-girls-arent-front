@@ -155,6 +155,43 @@
                   </button>
                 </div>
               </div>
+              <nav aria-label="page navigation">
+                <ul class="pagination">
+                  <li
+                    class="page-item"
+                    :class="{ disabled: currentPage === 1 }"
+                  >
+                    <a
+                      class="page-link"
+                      @click.prevent="fetchModifications(currentPage - 1)"
+                      >Previous</a
+                    >
+                  </li>
+                  <li
+                    class="page-item"
+                    v-for="page in totalPages"
+                    :key="page"
+                    :class="{ active: currentPage === page }"
+                  >
+                    <a
+                      class="page-link"
+                      @click.prevent="fetchModifications(page)"
+                      >{{ page }}</a
+                    >
+                  </li>
+                  <li
+                    class="page-item"
+                    :class="{ disabled: currentPage === totalPages }"
+                  >
+                    <a
+                      class="page-link"
+                      @click.prevent="fetchModifications(currentPage + 1)"
+                      >Next</a
+                    >
+                  </li>
+                </ul>
+              </nav>
+              <br />
             </div>
 
             <h2>Create new modification</h2>
@@ -321,7 +358,7 @@ export default {
         try {
           await userStore.fetchAllUsers();
           await QaAStore.fetchQuestionAndAnswers();
-          await modificationStore.fetchModifications(1, 100);
+          await modificationStore.fetchModifications();
         } catch (error) {
           Swal.fire({
             icon: "error",
@@ -429,7 +466,7 @@ export default {
 
       try {
         await modificationStore.createModification(formData);
-        await modificationStore.fetchModifications(1, 100);
+        await modificationStore.fetchModifications();
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -499,7 +536,7 @@ export default {
           editModificationData.value.id,
           formData
         );
-        await modificationStore.fetchModifications(1, 100);
+        await modificationStore.fetchModifications();
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -530,7 +567,7 @@ export default {
     const deleteModification = async (modificationId) => {
       try {
         await modificationStore.deleteModification(modificationId);
-        await modificationStore.fetchModifications(1, 100);
+        await modificationStore.fetchModifications();
         Swal.fire({
           icon: "success",
           title: "Success",
@@ -547,7 +584,8 @@ export default {
 
     const { users } = toRefs(userStore);
     const { questionAndAnswers } = toRefs(QaAStore);
-    const { modifications } = toRefs(modificationStore);
+    const { modifications, currentPage, totalPages, fetchModifications } =
+      toRefs(modificationStore);
 
     return {
       isLoggedIn,
@@ -568,6 +606,9 @@ export default {
       saveEditedModification,
       cancelEdit,
       deleteModification,
+      currentPage,
+      totalPages,
+      fetchModifications,
     };
   },
 };
