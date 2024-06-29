@@ -115,26 +115,18 @@
               >
                 <div>
                   <p>Name:</p>
-                  <p
-                    class="name h5 font-weight-bold mb-0"
-                    contenteditable="false"
-                  >
+                  <p class="name h5 font-weight-bold mb-0">
                     {{ modification.name }}
                   </p>
                   <br />
                   <p>Description:</p>
-                  <p class="description mt-2" contenteditable="false">
+                  <p class="description mt-2">
                     {{ modification.description }}
                   </p>
                   <p>Estimated Price:</p>
                   <p class="estimatedPrice mt-2 d-block">
                     €{{ modification.estimatedPrice }}
                   </p>
-                  <input
-                    type="number"
-                    step="0.01"
-                    class="form-control mt-2 estimatedPriceInput d-none"
-                  />
                   <p>Image:</p>
                   <div class="row">
                     <div class="col-6 col-md-4 col-lg-3">
@@ -146,17 +138,12 @@
                         alt="Modification Image"
                       />
                     </div>
-                    <div
-                      class="col-6 col-md-8 col-lg-9 d-flex flex-column justify-content-end"
-                    >
-                      <input type="file" class="form-control mt-2" disabled />
-                    </div>
                   </div>
                 </div>
                 <div class="buttons-container d-flex align-items-start">
                   <button
                     class="edit-modification-btn btn btn-primary py-2 px-4 rounded hover:bg-opacity-75 transition"
-                    @click="editModification(modification)"
+                    @click="editModification(modification.modificationId)"
                   >
                     Edit
                   </button>
@@ -218,6 +205,69 @@
                 </button>
               </div>
             </div>
+            <!-- Edit modification section -->
+            <h2>Edit modification</h2>
+            <p>Select a modification to edit</p>
+            <div
+              v-if="isEditing"
+              id="editModificationCard"
+              class="modification-card p-3 border-bottom d-flex justify-content-between mt-3"
+            >
+              <div>
+                <p>Name:</p>
+                <input
+                  type="text"
+                  v-model="editModificationData.name"
+                  class="form-control nameInput mb-2"
+                  placeholder="Enter name"
+                  required
+                />
+                <p>Description:</p>
+                <textarea
+                  v-model="editModificationData.description"
+                  class="form-control descriptionInput mb-2"
+                  placeholder="Enter description"
+                  required
+                ></textarea>
+                <p>Estimated Price:</p>
+                <input
+                  type="number"
+                  v-model="editModificationData.estimatedPrice"
+                  step="0.01"
+                  class="form-control estimatedPriceInput mb-2"
+                  placeholder="Enter price"
+                  required
+                />
+                <p>Image:</p>
+                <input
+                  type="file"
+                  @change="handleEditImageUpload"
+                  class="form-control imageInput mb-2"
+                />
+                <img
+                  v-if="editModificationData.imagePath"
+                  :src="
+                    'data:image/jpeg;base64,' + editModificationData.imagePath
+                  "
+                  class="img-fluid img-thumbnail mt-2"
+                  alt="Modification Image"
+                />
+              </div>
+              <div>
+                <button
+                  class="save-modification-btn btn btn-success py-2 px-4 rounded hover:bg-opacity-75 transition"
+                  @click="saveEditedModification"
+                >
+                  Save
+                </button>
+                <button
+                  class="cancel-edit-modification-btn btn btn-secondary py-2 px-4 rounded hover:bg-opacity-75 transition ml-2"
+                  @click="cancelEdit"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -237,6 +287,7 @@ import Swal from "sweetalert2";
 export default {
   name: "Admin",
   setup() {
+    //#region Variables
     const loggedInStore = useLoggedInStore();
     const userStore = useUserStore();
     const modificationStore = modificationsStore();
@@ -252,6 +303,18 @@ export default {
       estimatedPrice: "",
       image: null,
     });
+
+    const isEditing = ref(false);
+    const editModificationData = ref({
+      id: null,
+      name: "",
+      description: "",
+      estimatedPrice: "",
+      image: null,
+      imagePath: "",
+    });
+
+    //#endregion
 
     onMounted(async () => {
       if (isLoggedIn.value) {
@@ -269,6 +332,7 @@ export default {
       }
     });
 
+    //#region delete functions
     const deleteUser = async (userId) => {
       try {
         await userStore.deleteUser(userId);
@@ -294,7 +358,9 @@ export default {
         });
       }
     };
+    //#endregion
 
+    //#region create functions question and answer
     const createQuestionAndAnswer = async () => {
       const newQuestion = document.getElementById("newQuestion").value;
       const newAnswer = document.getElementById("newAnswer").value;
@@ -330,6 +396,9 @@ export default {
       }
     };
 
+    //#endregion
+
+    //#region create functions modification
     const handleImageUpload = (event) => {
       newModification.value.image = event.target.files[0];
     };
@@ -375,8 +444,87 @@ export default {
       }
     };
 
-    const editModification = (modification) => {
-      // Add logic for editing modification
+    //#endregion
+
+    const handleEditImageUpload = (event) => {
+      editModificationData.value.image = event.target.files[0];
+    };
+
+    const editModification = (modificationId) => {
+      const modification = modificationStore.getModificationById(
+        parseInt(modificationId)
+      );
+      isEditing.value = true;
+      editModificationData.value = {
+        id: modification.modificationId,
+        name: modification.name,
+        description: modification.description,
+        estimatedPrice: modification.estimatedPrice,
+        imagePath: modification.imagePath,
+        image: null,
+      };
+    };
+
+    const saveEditedModification = async () => {
+      if (
+        !editModificationData.value.name ||
+        !editModificationData.value.description ||
+        !editModificationData.value.estimatedPrice
+      ) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Please fill in all the fields!",
+        });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("modificationName", editModificationData.value.name);
+      formData.append(
+        "modificationDescription",
+        editModificationData.value.description
+      );
+      formData.append(
+        "estimatedPrice",
+        editModificationData.value.estimatedPrice
+      );
+
+      if (editModificationData.value.image) {
+        formData.append("modificationImage", editModificationData.value.image);
+      }
+
+      try {
+        await modificationStore.updateModification(
+          editModificationData.value.id,
+          formData
+        );
+        await modificationStore.fetchModifications(1, 100);
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Modification updated successfully!",
+        });
+        isEditing.value = false;
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${error}`,
+        });
+      }
+    };
+
+    const cancelEdit = () => {
+      isEditing.value = false;
+      editModificationData.value = {
+        id: null,
+        name: "",
+        description: "",
+        estimatedPrice: "",
+        image: null,
+        imagePath: "",
+      };
     };
 
     const deleteModification = async (modificationId) => {
@@ -414,6 +562,11 @@ export default {
       handleImageUpload,
       saveNewModification,
       editModification,
+      editModificationData,
+      isEditing,
+      handleEditImageUpload,
+      saveEditedModification,
+      cancelEdit,
       deleteModification,
     };
   },

@@ -50,7 +50,7 @@ export const modificationsStore = defineStore({
             this.loading = true;
             this.error = null;
             try {
-                await axios.put(`/modifications/${id}`, data, {
+                await axios.post(`/modifications/${id}`, data, {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
@@ -74,6 +74,11 @@ export const modificationsStore = defineStore({
                 this.loading = false;
             }
         },
+        getModificationById(id) {
+            let modification = this.modifications.find((modification) => modification.modificationId === id);
+            return modification;
+        }
     },
+
 
 });
